@@ -1,3 +1,4 @@
+using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,6 +18,14 @@ public enum eAnimState
     RELOAD,
     THROW,
 }
+
+
+public enum eControlScheme
+{
+    CONTROL_1,
+    CONTROL_2,
+}
+
 
 [Serializable]
 public struct AnimationInfos
@@ -42,6 +51,8 @@ public class PlayerController : MonoBehaviour
     PlayerInputController Controller;
     CharacterController CharacterController;
 
+    public eControlScheme CurrentControlScheme;
+
     public bool UseRelativeMovement = true;
 
     public float Gravity = -9.81f;
@@ -53,6 +64,8 @@ public class PlayerController : MonoBehaviour
     private Dictionary<eAnimState, string> AnimToStringMap;
 
     private Animator Animator;
+
+    public CinemachineVirtualCamera VirtualCamera;
 
     public void ChangeAnimationState(eAnimState newState)
     {
@@ -72,7 +85,6 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError("Trying play an invalid animation");
         }
-        
         
     }
 
@@ -115,6 +127,7 @@ public class PlayerController : MonoBehaviour
         MoveDown = inputActions.PlayerControls.MoveDown;
         MoveLeft = inputActions.PlayerControls.MoveLeft;
         MoveRight = inputActions.PlayerControls.MoveRight;
+
     }
 
     Vector3 GetMouseRotation()
@@ -140,11 +153,7 @@ public class PlayerController : MonoBehaviour
         //    transform.rotation = Quaternion.LookRotation(direction);
 
         float mouseX = Input.GetAxis("Mouse X");
-
-        // Determine rotation amount
         float rotationAmount = mouseX * RotationSpeed * Time.deltaTime;
-
-        // Apply rotation
         transform.Rotate(0f, rotationAmount, 0f);
     }
 
@@ -178,6 +187,99 @@ public class PlayerController : MonoBehaviour
         CharacterController.Move(direction*moveSpeed*Time.deltaTime);
     }
 
+    void HandleTurningBasedOnControlScheme()
+    {
+
+    }
+
+    void HandleMovementBasedOnControllerScheme()
+    {
+        switch (CurrentControlScheme)
+        {
+            case eControlScheme.CONTROL_1:
+                {
+                    if (MoveUp.ReadValue<float>() > 0.0f)
+                    {
+                        Debug.Log("Called Move Up");
+                        //transform.position += Vector3.forward * moveSpeed * Time.deltaTime;
+
+                        if (UseRelativeMovement)
+                        {
+                            CharacterControllerMovement(transform.forward);
+                        }
+                        else
+                        {
+                            CharacterControllerMovement(Vector3.forward);
+                        }
+                    }
+
+                    break;
+                }
+
+            case eControlScheme.CONTROL_2:
+                {
+
+                    if (MoveUp.ReadValue<float>() > 0.0f)
+                    {
+                        Debug.Log("Called Move Up");
+                        //transform.position += Vector3.forward * moveSpeed * Time.deltaTime;
+
+                        if (UseRelativeMovement)
+                        {
+                            CharacterControllerMovement(transform.forward);
+                        }
+                        else
+                        {
+                            CharacterControllerMovement(Vector3.forward);
+                        }
+                    }
+
+                    if (MoveDown.ReadValue<float>() > 0.0f)
+                    {
+                        Debug.Log("Called Move Down");
+                        //transform.position += (-Vector3.forward) * moveSpeed * Time.deltaTime;
+                        if (UseRelativeMovement)
+                        {
+                            CharacterControllerMovement(-transform.forward);
+                        }
+                        else
+                        {
+                            CharacterControllerMovement(Vector3.back);
+                        }
+                    }
+
+                    if (MoveLeft.ReadValue<float>() > 0.0f)
+                    {
+                        //transform.position += (-Vector3.right) * moveSpeed * Time.deltaTime;
+                        if (UseRelativeMovement)
+                        {
+                            CharacterControllerMovement(-transform.right);
+                        }
+                        else
+                        {
+                            CharacterControllerMovement(Vector3.left);
+                        }
+
+                    }
+
+                    if (MoveRight.ReadValue<float>() > 0.0f)
+                    {
+                        //transform.position += Vector3.right * moveSpeed * Time.deltaTime;
+                        if (UseRelativeMovement)
+                        {
+                            CharacterControllerMovement(transform.right);
+                        }
+                        else
+                        {
+                            CharacterControllerMovement(Vector3.right);
+                        }
+                    }
+
+                    break;
+                }
+        }
+    }
+
     void HandleMovement()
     {
         bool isMoving = MoveUp.ReadValue<float>() > 0.0f || MoveDown.ReadValue<float>() > 0.0f
@@ -188,63 +290,8 @@ public class PlayerController : MonoBehaviour
             ChangeAnimationState(eAnimState.IDLE);
         }
 
-        if (MoveUp.ReadValue<float>() > 0.0f)
-        {
-            Debug.Log("Called Move Up");
-            //transform.position += Vector3.forward * moveSpeed * Time.deltaTime;
-
-            if(UseRelativeMovement)
-            {
-                CharacterControllerMovement(transform.forward);
-            }
-            else
-            {
-                CharacterControllerMovement(Vector3.forward);
-            }
-
-            
-        }
-
-        if (MoveDown.ReadValue<float>() > 0.0f)
-        {
-            Debug.Log("Called Move Down");
-            //transform.position += (-Vector3.forward) * moveSpeed * Time.deltaTime;
-            if (UseRelativeMovement)
-            {
-                CharacterControllerMovement(-transform.forward);
-            }
-            else
-            {
-                CharacterControllerMovement(Vector3.back);
-            }
-        }
-
-        if (MoveLeft.ReadValue<float>() > 0.0f)
-        {
-            //transform.position += (-Vector3.right) * moveSpeed * Time.deltaTime;
-            if (UseRelativeMovement)
-            {
-                CharacterControllerMovement(-transform.right);
-            }
-            else
-            {
-                CharacterControllerMovement(Vector3.left);
-            }
-            
-        }
-
-        if (MoveRight.ReadValue<float>() > 0.0f)
-        {
-            //transform.position += Vector3.right * moveSpeed * Time.deltaTime;
-            if (UseRelativeMovement)
-            {
-                CharacterControllerMovement(transform.right);
-            }
-            else
-            {
-                CharacterControllerMovement(Vector3.right);
-            }
-        }
+        HandleMovementBasedOnControllerScheme();
+       
     }
 
     void HandleGravity()
@@ -270,6 +317,7 @@ public class PlayerController : MonoBehaviour
         HandleGravity();
         HandleMovement();
         HandleMouseInput();
+
         //CharacterController.Move(Physics.gravity * Time.deltaTime);
         //HandleJoystickInput();
         
