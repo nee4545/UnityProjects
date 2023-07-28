@@ -17,6 +17,7 @@ public enum eAnimState
     SHOOT,
     RELOAD,
     THROW,
+    MELEE_ATTACK,
 }
 
 
@@ -313,6 +314,11 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Debug.Log("Character controller grounded"+CharacterController.isGrounded.ToString());
+
+        if(Input.GetMouseButtonDown(0)) 
+        {
+            ChangeAnimationState(eAnimState.MELEE_ATTACK);
+        }
 
         HandleGravity();
         HandleMovement();

@@ -89,6 +89,15 @@ public partial class @PlayerInputController: IInputActionCollection2, IDisposabl
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Attack"",
+                    ""type"": ""Value"",
+                    ""id"": ""edde9bc2-25f3-4683-8c03-6c55bad86ef6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -179,6 +188,17 @@ public partial class @PlayerInputController: IInputActionCollection2, IDisposabl
                     ""action"": ""Run"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d775b798-bcd6-47ad-81ad-b31eb4349d74"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -194,6 +214,7 @@ public partial class @PlayerInputController: IInputActionCollection2, IDisposabl
         m_PlayerControls_Movement = m_PlayerControls.FindAction("Movement", throwIfNotFound: true);
         m_PlayerControls_Rotation = m_PlayerControls.FindAction("Rotation", throwIfNotFound: true);
         m_PlayerControls_Run = m_PlayerControls.FindAction("Run", throwIfNotFound: true);
+        m_PlayerControls_Attack = m_PlayerControls.FindAction("Attack", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -262,6 +283,7 @@ public partial class @PlayerInputController: IInputActionCollection2, IDisposabl
     private readonly InputAction m_PlayerControls_Movement;
     private readonly InputAction m_PlayerControls_Rotation;
     private readonly InputAction m_PlayerControls_Run;
+    private readonly InputAction m_PlayerControls_Attack;
     public struct PlayerControlsActions
     {
         private @PlayerInputController m_Wrapper;
@@ -273,6 +295,7 @@ public partial class @PlayerInputController: IInputActionCollection2, IDisposabl
         public InputAction @Movement => m_Wrapper.m_PlayerControls_Movement;
         public InputAction @Rotation => m_Wrapper.m_PlayerControls_Rotation;
         public InputAction @Run => m_Wrapper.m_PlayerControls_Run;
+        public InputAction @Attack => m_Wrapper.m_PlayerControls_Attack;
         public InputActionMap Get() { return m_Wrapper.m_PlayerControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -303,6 +326,9 @@ public partial class @PlayerInputController: IInputActionCollection2, IDisposabl
             @Run.started += instance.OnRun;
             @Run.performed += instance.OnRun;
             @Run.canceled += instance.OnRun;
+            @Attack.started += instance.OnAttack;
+            @Attack.performed += instance.OnAttack;
+            @Attack.canceled += instance.OnAttack;
         }
 
         private void UnregisterCallbacks(IPlayerControlsActions instance)
@@ -328,6 +354,9 @@ public partial class @PlayerInputController: IInputActionCollection2, IDisposabl
             @Run.started -= instance.OnRun;
             @Run.performed -= instance.OnRun;
             @Run.canceled -= instance.OnRun;
+            @Attack.started -= instance.OnAttack;
+            @Attack.performed -= instance.OnAttack;
+            @Attack.canceled -= instance.OnAttack;
         }
 
         public void RemoveCallbacks(IPlayerControlsActions instance)
@@ -354,5 +383,6 @@ public partial class @PlayerInputController: IInputActionCollection2, IDisposabl
         void OnMovement(InputAction.CallbackContext context);
         void OnRotation(InputAction.CallbackContext context);
         void OnRun(InputAction.CallbackContext context);
+        void OnAttack(InputAction.CallbackContext context);
     }
 }
