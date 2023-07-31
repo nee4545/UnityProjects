@@ -13,7 +13,13 @@ public enum eAnimState
 {
     IDLE,
     WALK,
+    WALK_BACK,
+    WALK_RIGHT,
+    WALK_LEFT,
     RUN,
+    RUN_BACK,
+    RUN_LEFT,
+    RUN_RIGHT,
     SHOOT,
     RELOAD,
     THROW,
@@ -177,12 +183,42 @@ public class PlayerController : MonoBehaviour
         if(Controller.PlayerControls.Run.ReadValue<float>() > 0.0f)
         {
             moveSpeed = RunSpeed;
-            ChangeAnimationState(eAnimState.RUN);
+            if (direction == -transform.forward)
+            {
+                ChangeAnimationState(eAnimState.RUN_BACK);
+            }
+            else if (direction == transform.right)
+            {
+                ChangeAnimationState(eAnimState.RUN_RIGHT);
+            }
+            else if (direction == -transform.right)
+            {
+                ChangeAnimationState(eAnimState.RUN_LEFT);
+            }
+            else
+            {
+                ChangeAnimationState(eAnimState.RUN);
+            }
         }
         else
         {
-            ChangeAnimationState(eAnimState.WALK);
             moveSpeed = MoveSpeed;
+            if (direction == -transform.forward)
+            {
+                ChangeAnimationState(eAnimState.WALK_BACK);
+            }
+            else if (direction == transform.right)
+            {
+                ChangeAnimationState(eAnimState.WALK_RIGHT);
+            }
+            else if (direction == -transform.right)
+            {
+                ChangeAnimationState(eAnimState.WALK_LEFT);
+            }
+            else
+            {
+                ChangeAnimationState(eAnimState.WALK);
+            }
         }
 
         CharacterController.Move(direction*moveSpeed*Time.deltaTime);
@@ -235,7 +271,7 @@ public class PlayerController : MonoBehaviour
                         }
                     }
 
-                    if (MoveDown.ReadValue<float>() > 0.0f)
+                    else if (MoveDown.ReadValue<float>() > 0.0f)
                     {
                         Debug.Log("Called Move Down");
                         //transform.position += (-Vector3.forward) * moveSpeed * Time.deltaTime;
@@ -249,7 +285,7 @@ public class PlayerController : MonoBehaviour
                         }
                     }
 
-                    if (MoveLeft.ReadValue<float>() > 0.0f)
+                    else if (MoveLeft.ReadValue<float>() > 0.0f)
                     {
                         //transform.position += (-Vector3.right) * moveSpeed * Time.deltaTime;
                         if (UseRelativeMovement)
@@ -263,7 +299,7 @@ public class PlayerController : MonoBehaviour
 
                     }
 
-                    if (MoveRight.ReadValue<float>() > 0.0f)
+                    else if (MoveRight.ReadValue<float>() > 0.0f)
                     {
                         //transform.position += Vector3.right * moveSpeed * Time.deltaTime;
                         if (UseRelativeMovement)
@@ -315,10 +351,10 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("Character controller grounded"+CharacterController.isGrounded.ToString());
 
-        if(Input.GetMouseButtonDown(0)) 
-        {
-            ChangeAnimationState(eAnimState.MELEE_ATTACK);
-        }
+        //if(Input.GetMouseButtonDown(0)) 
+        //{
+        //    ChangeAnimationState(eAnimState.MELEE_ATTACK);
+        //}
 
         HandleGravity();
         HandleMovement();
