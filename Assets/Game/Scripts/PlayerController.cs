@@ -2,6 +2,7 @@ using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
@@ -55,6 +56,10 @@ public class PlayerController : MonoBehaviour
     public float RunSpeed = 30f;
     public float RotationSpeed = 360f;
 
+    public float RollSpeed = 30f;
+    CountdownTimer RollTimer;
+    public float RollTimeCounter = 2f;
+
     PlayerInputController Controller;
     CharacterController CharacterController;
 
@@ -74,14 +79,29 @@ public class PlayerController : MonoBehaviour
 
     public CinemachineVirtualCamera VirtualCamera;
 
-    public void ChangeAnimationState(eAnimState newState)
+    public void ChangeAnimationState(eAnimState newState, bool forcePlay = false)
     {
+        string AnimationState = GetAnimationName(newState);
+        
+        if(forcePlay)
+        {
+            if (AnimationState != null)
+            {
+                CurrentAnimState = newState;
+                //Animator.Play("IDLE_1");
+                Animator.Play(AnimationState);
+            }
+            else
+            {
+                Debug.LogError("Trying play an invalid animation");
+            }
+        }
+
         if(CurrentAnimState == newState)
         {
             return;
         }
 
-        string AnimationState = GetAnimationName(newState);
 
         if(AnimationState != null)
         {
@@ -134,6 +154,9 @@ public class PlayerController : MonoBehaviour
         MoveDown = inputActions.PlayerControls.MoveDown;
         MoveLeft = inputActions.PlayerControls.MoveLeft;
         MoveRight = inputActions.PlayerControls.MoveRight;
+
+        RollTimer = gameObject.AddComponent<CountdownTimer>();
+        RollTimer.ResetTimer(RollTimeCounter);
 
     }
 
@@ -351,10 +374,10 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("Character controller grounded"+CharacterController.isGrounded.ToString());
 
-        //if(Input.GetMouseButtonDown(0)) 
-        //{
-        //    ChangeAnimationState(eAnimState.MELEE_ATTACK);
-        //}
+        if (Input.GetMouseButtonDown(0))
+        {
+            ChangeAnimationState(eAnimState.MELEE_ATTACK,true);
+        }
 
         HandleGravity();
         HandleMovement();
